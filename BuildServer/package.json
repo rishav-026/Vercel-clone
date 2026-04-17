@@ -1,0 +1,19 @@
+{
+  "name": "buildserver",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1024.0",
+    "dotenv": "^17.4.1",
+    "ioredis": "^5.10.1",
+    "mime-types": "^3.0.2",
+    "simple-git": "^3.35.2"
+  }
+}
