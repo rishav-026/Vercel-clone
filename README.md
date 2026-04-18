@@ -198,6 +198,11 @@ Typical variables include:
 
 ---
 
+![image](https://github.com/rishav-026/Vercel-clone/blob/main/vercel%20clone%20-%20visual%20selection.png)
+
+
+---
+
 ## Troubleshooting Guide
 
 1. Failed to fetch in dashboard
