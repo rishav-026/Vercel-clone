@@ -70,11 +70,11 @@ The platform separates frontend, orchestration, build execution, and hosting con
 - ECR for BuildServer image versions.
 - S3 for deployed artifact storage.
 
+![image](https://github.com/rishav-026/Vercel-clone/blob/main/Screenshot%202026-04-18%20105746.png)
 
 
 ---
 
-## Repository Structure
 
 ![image](https://github.com/rishav-026/Vercel-clone/blob/main/Screenshot%202026-04-18%20105334.png)
 
