@@ -123,7 +123,10 @@ The platform separates frontend, orchestration, build execution, and hosting con
 
 ---
 
+![image](https://github.com/rishav-026/Vercel-clone/blob/main/_-%20visual%20selection%20(2).png)
 
+
+---
 ## Project Type Support
 
 Supported project styles include:
