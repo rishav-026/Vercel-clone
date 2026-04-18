@@ -70,15 +70,40 @@ The platform separates frontend, orchestration, build execution, and hosting con
 - ECR for BuildServer image versions.
 - S3 for deployed artifact storage.
 
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              ARCHITECTURE OVERVIEW                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────┐      ┌──────────────┐      ┌──────────────┐      ┌──────────┐
+│    Client    │─────▶│  API Server  │─────▶│  ECS Fargate │─────▶│    S3    │
+│  (Dashboard) │      │              │      │ (BuildServer)│      │ (Assets) │
+└──────────────┘      └──────────────┘      └──────────────┘      └──────────┘
+       │                     │                     │                    │
+       │                     │                     │                    │
+       │              ┌──────▼──────┐              │                    │
+       │              │    Redis    │◀─────────────┘                    │
+       │              │  (Pub/Sub)  │                                   │
+       │              └──────┬──────┘                                   │
+       │                     │                                          │
+       ◀─────────────────────┘                                          │
+   (Real-time logs via Socket.IO)                                       │
+                                                                        │
+┌──────────────┐                                                        │
+│   Browser    │───────────────▶ s3-reverse-proxy ◀─────────────────────┘
+│ (End Users)  │                (Wildcard Subdomain)
+└──────────────┘
+
 ---
 
 ## Repository Structure
 
-- api-server
-- BuildServer
-- client
-- s3-reverse-proxy
-- project-docs
+vercel-clone/
+├── api-server/          # Deployment orchestration and log streaming
+├── BuildServer/         # Container-based build execution
+├── client/              # React dashboard frontend
+├── s3-reverse-proxy/    # Subdomain routing service
+└── project-docs/        # Documentation files
 
 ---
 
@@ -96,6 +121,52 @@ The platform separates frontend, orchestration, build execution, and hosting con
 10. API receives logs and emits to dashboard via Socket.IO.
 11. User accesses deployment at slug.base-domain.
 12. Reverse proxy routes request to proper S3 output path.
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            DEPLOYMENT FLOW                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  USER                    SYSTEM                           AWS
+   │                        │                               │
+   │  1. Enter GitHub URL   │                               │
+   │     and slug           │                               │
+   │───────────────────────▶│                               │
+   │                        │  2. Send deployment request   │
+   │                        │─────────────────────────────▶ │
+   │                        │                               │
+   │                        │  3. Invoke ECS RunTask        │
+   │                        │     (repo URL + project ID)   │
+   │                        │─────────────────────────────▶ │
+   │                        │                               │
+   │                        │         4. Start BuildServer  │
+   │                        │            in Fargate         │
+   │                        │                        ┌──────┴──────┐
+   │                        │                        │ 5. Clone    │
+   │                        │                        │    repo     │
+   │                        │                        ├─────────────┤
+   │                        │                        │ 6. Detect   │
+   │                        │                        │    type     │
+   │                        │                        ├─────────────┤
+   │                        │                        │ 7. Run      │
+   │                        │                        │    build    │
+   │                        │                        ├─────────────┤
+   │                        │                        │ 8. Upload   │
+   │                        │                        │    to S3    │
+   │                        │                        └──────┬──────┘
+   │                        │                               │
+   │                        │  9. Publish logs to Redis     │
+   │                        │◀──────────────────────────────│
+   │                        │                               │
+   │  10. Stream logs via   │                               │
+   │      Socket.IO         │                               │
+   │◀───────────────────────│                               │
+   │                        │                               │
+   │  11. Access deployment │                               │
+   │      at slug.domain    │                               │
+   │───────────────────────▶│  12. Proxy routes to S3      │
+   │                        │─────────────────────────────▶ │
+   │                        │                               │
 
 ---
 
